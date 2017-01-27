@@ -128,7 +128,9 @@ multipass {
 - __smtp_client__: SMTP client command with arguments. Mutually exclusive with __smtp_addr__
 - __mail_from__: From address used in email messages sent to users. _Required_
 - __mail_tmpl__: Path to mail template to override deault subject, plain and html body.
-
+- __short__: Enable or Disable short login urls. default enable.
+- __shortlength__: Length of short url componet of login url. default 80.
+- __shortexpire__: The time duration before short url expires. default 1m.
 ### Examples:
 
 In the following example, the service running on `localhost:2016` is proxied and protected to allow only users with handles leeloo@dallas and korben@dallas to access the  `/fhloston` and `/paradise` resources.

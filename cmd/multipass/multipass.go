@@ -24,8 +24,8 @@ import (
 	"github.com/mholt/caddy/caddytls"
 
 	// This is where other plugins get plugged in (imported)
+	_ "github.com/NeuralSpaz/multipass/caddy"
 	_ "github.com/mholt/caddy/caddyhttp/proxy"
-	_ "github.com/namsral/multipass/caddy"
 )
 
 func init() {

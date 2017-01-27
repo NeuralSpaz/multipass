@@ -9,7 +9,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/namsral/multipass/services/io"
+	"github.com/NeuralSpaz/multipass/services/io"
 )
 
 // Option describes a functional option for configuring the Multipass
@@ -36,7 +36,7 @@ func Expires(d time.Duration) Option {
 	}
 }
 
-// CSRF sets a bool wether to protect against CSRF attaks. The default is true.
+// CSRF sets a bool whether to protect against CSRF attaks. The default is true.
 func CSRF(b bool) Option {
 	return func(m *Multipass) {
 		m.opts.CSRF = b
@@ -57,6 +57,27 @@ func Service(s UserService) Option {
 	}
 }
 
+// ShortURL set whether to use shorten urls
+func Short(b bool) Option {
+	return func(m *Multipass) {
+		m.opts.Short = b
+	}
+}
+
+// ShortURL set whether to use shorten urls
+func ShortExpires(t time.Duration) Option {
+	return func(m *Multipass) {
+		m.opts.ShortExpires = t
+	}
+}
+
+// ShortLength set the length of the login url suffix
+func ShortLength(i int) Option {
+	return func(m *Multipass) {
+		m.opts.ShortLength = i
+	}
+}
+
 // parseOptions parses the given option functions and returns a configured
 // Multipass instance.
 func parseOptions(opts ...Option) *Multipass {
@@ -65,6 +86,9 @@ func parseOptions(opts ...Option) *Multipass {
 	// set default for the options
 	m.opts.Expires = time.Hour * 24
 	m.opts.Basepath = "/multipass"
+	m.opts.Short = true
+	m.opts.ShortExpires = time.Minute * 1
+	m.opts.ShortLength = 80
 	m.opts.Service = io.NewUserService(os.Stdout)
 	m.opts.Template = *loadTemplates()
 	m.opts.CSRF = true

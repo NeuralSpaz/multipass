@@ -8,17 +8,21 @@ import (
 	"html/template"
 	"reflect"
 	"testing"
+	"time"
 
-	"github.com/namsral/multipass/mock"
+	"github.com/NeuralSpaz/multipass/mock"
 )
 
 func TestOptions(t *testing.T) {
 	test := &options{
-		Basepath: "/mp",
-		Expires:  9,
-		CSRF:     false,
-		Template: *template.New("test"),
-		Service:  new(mock.UserService),
+		Basepath:     "/mp",
+		Expires:      9,
+		CSRF:         false,
+		Template:     *template.New("test"),
+		Service:      new(mock.UserService),
+		Short:        true,
+		ShortExpires: time.Millisecond,
+		ShortLength:  20,
 	}
 
 	testOpts := []Option{
@@ -27,6 +31,9 @@ func TestOptions(t *testing.T) {
 		CSRF(test.CSRF),
 		Template(test.Template),
 		Service(test.Service),
+		Short(test.Short),
+		ShortExpires(test.ShortExpires),
+		ShortLength(test.ShortLength),
 	}
 
 	m := New("", testOpts...)
@@ -48,6 +55,15 @@ func TestOptions(t *testing.T) {
 	}
 	if got, want := m.opts.Service, test.Service; !reflect.DeepEqual(want, got) {
 		t.Errorf("want Service %q, got %q", want, got)
+	}
+	if got, want := m.opts.Short, test.Short; !reflect.DeepEqual(want, got) {
+		t.Errorf("want ShortURL %q, got %q", want, got)
+	}
+	if got, want := m.opts.ShortExpires, test.ShortExpires; !reflect.DeepEqual(want, got) {
+		t.Errorf("want ShortURL %q, got %q", want, got)
+	}
+	if got, want := m.opts.ShortLength, test.ShortLength; !reflect.DeepEqual(want, got) {
+		t.Errorf("want ShortURL %q, got %q", want, got)
 	}
 }
 

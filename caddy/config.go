@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/NeuralSpaz/multipass"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"github.com/namsral/multipass"
 )
 
 // Auth wraps a Multipass instance to be used by the caddy web server.
@@ -43,10 +43,13 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
 // Rule holds the directive options parsed from a Caddyfile.
 type Rule struct {
-	Basepath  string
-	Expires   time.Duration
-	Resources []string
-	Handles   []string
+	Basepath     string
+	Expires      time.Duration
+	Resources    []string
+	Handles      []string
+	Short        bool
+	ShortExpires time.Duration
+	ShortLength  int
 
 	SMTPAddr, SMTPUser, SMTPPass string
 	MailFrom, MailTmpl           string

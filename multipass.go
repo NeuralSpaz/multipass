@@ -32,11 +32,14 @@ var (
 
 // options contains the optional settings for the Multipass instance.
 type options struct {
-	Expires  time.Duration
-	Basepath string
-	Service  UserService
-	Template template.Template
-	CSRF     bool
+	Expires      time.Duration
+	Basepath     string
+	Short        bool
+	ShortExpires time.Duration
+	ShortLength  int
+	Service      UserService
+	Template     template.Template
+	CSRF         bool
 }
 
 // Multipass implements the http.Handler interface which can handle
@@ -45,6 +48,7 @@ type Multipass struct {
 	siteaddr string
 	handler  http.Handler
 	opts     options
+	shortURL lookuptable
 }
 
 // New returns a new instance of Multipass with the given site address.
@@ -58,6 +62,8 @@ type Multipass struct {
 func New(siteaddr string, opts ...Option) *Multipass {
 	m := parseOptions(opts...)
 	m.siteaddr = siteaddr
+	// initialize short url lookuptable even if not used to prevent panics
+	m.shortURL.table = make(map[string]string)
 
 	// Generate and set a private key if none is set
 	if k, err := PrivateKeyFromEnvironment(); k != nil && err == nil {
@@ -113,6 +119,12 @@ func (m *Multipass) routeHandler(w http.ResponseWriter, r *http.Request) {
 			fn = m.confirmHandler
 		case "/pub.cer":
 			fn = m.publicKeyHandler
+		}
+		// check if url is a short
+		if m.opts.Short {
+			if strings.HasPrefix(p, "/s/") {
+				fn = m.shortHandler
+			}
 		}
 	}
 	if fn == nil {
@@ -259,9 +271,22 @@ func (m *Multipass) loginHandler(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Print(err)
 				}
-				if err := m.opts.Service.Notify(handle, loginURL.String()); err != nil {
-					log.Print(err)
+				if !m.opts.Short {
+					if err := m.opts.Service.Notify(handle, loginURL.String()); err != nil {
+						log.Print(err)
+					}
 				}
+				// generate random url
+				if m.opts.Short {
+					prefix := m.siteaddr + m.opts.Basepath + "/s/"
+					sURL := randomStringGen(m.opts.ShortLength)
+					m.shortURL.add(sURL, loginURL.String(), m.opts.ShortExpires)
+					if err := m.opts.Service.Notify(handle, prefix+sURL); err != nil {
+						log.Print(err)
+					}
+
+				}
+
 			}
 			// Redirect even when the handle is not listed in order to prevent guessing
 			location := path.Join(m.opts.Basepath, "confirm")

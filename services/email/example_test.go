@@ -6,7 +6,7 @@ package email_test
 import (
 	"fmt"
 
-	"github.com/namsral/multipass/services/email"
+	"github.com/NeuralSpaz/multipass/services/email"
 )
 
 func ExampleSplitLocalDomain() {

@@ -1,3 +1,6 @@
+##### [NeuralSpaz-dev] - 2017-01-27 - NeuralSpaz@github
+- add support for short login urls
+
 #### [0.4.0] - 2016-10-20
 ### Added
 - Add support for custom mail template

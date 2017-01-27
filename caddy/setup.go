@@ -9,12 +9,13 @@ package multipass
 import (
 	"fmt"
 	"path"
+	"strconv"
 	"time"
 
+	"github.com/NeuralSpaz/multipass"
+	"github.com/NeuralSpaz/multipass/services/email"
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"github.com/namsral/multipass"
-	"github.com/namsral/multipass/services/email"
 )
 
 const directive = "multipass"
@@ -83,6 +84,15 @@ func setup(c *caddy.Controller) error {
 	}
 	if rule.Expires > 0 {
 		opts = append(opts, multipass.Expires(rule.Expires))
+	}
+	if rule.ShortExpires > 0 {
+		opts = append(opts, multipass.ShortExpires(rule.ShortExpires))
+	}
+	if rule.ShortLength > 0 {
+		opts = append(opts, multipass.ShortLength(rule.ShortLength))
+	}
+	if rule.Short {
+		opts = append(opts, multipass.Short(rule.Short))
 	}
 	m := multipass.New(cfg.Addr.String(), opts...)
 
@@ -173,7 +183,44 @@ func parse(c *caddy.Controller) ([]Rule, error) {
 					}
 					rule.SMTPClientName = args[0]
 					rule.SMTPClientArgs = args[len(args):]
+				case "shortexpire":
+					args := c.RemainingArgs()
+					if len(args) != 1 {
+						return rules, c.Err("Expecting a single Go formatted time duration for shortexpire")
+					}
+					d, err := time.ParseDuration(args[0])
+					if err != nil {
+						return rules, c.Err("Expecting a single Go formatted time duration for shortexpire")
+					}
+					rule.ShortExpires = d
+				case "shortlength":
+					args := c.RemainingArgs()
+					if len(args) != 1 {
+						return rules, c.Err("Expecting a single shortlength")
+					}
+					l, err := strconv.Atoi(args[0])
+					if err != nil {
+						return rules, c.Err("Expecting a number for shortlength")
+					}
+					if l < 1 {
+						return rules, c.Err("Expecting a positive number for shortlength")
+					}
+					rule.ShortLength = l
+				case "short":
+					args := c.RemainingArgs()
+					if len(args) != 1 {
+						return rules, c.Err("Expecting a single short")
+					}
+					switch args[0] {
+					case "enable":
+						rule.Short = true
+					case "disable":
+						rule.Short = false
+					default:
+						return rules, c.Err("Expecting a enable or disable for short")
+					}
 				}
+
 			}
 			if len(rule.Handles) < 1 {
 				return rules, c.Err("Expecting at least one handle")
@@ -181,6 +228,9 @@ func parse(c *caddy.Controller) ([]Rule, error) {
 			if rule.MailFrom == "" {
 				return rules, c.Err("Expecting a single mail from address FOOBAR")
 			}
+			// if !rule.Short && rule.ShortLength != 0 || !rule.Short && rule.ShortExpires > 0 {
+			// 	rule.Short = true
+			// }
 			rules = append(rules, rule)
 		default:
 			return rules, c.Err("Single line directives not supported")

@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/namsral/multipass/mock"
+	"github.com/NeuralSpaz/multipass/mock"
 
 	jose "gopkg.in/square/go-jose.v1"
 )
@@ -311,6 +311,12 @@ func TestMultipassHandlers(t *testing.T) {
 			status: http.StatusOK,
 		},
 		{
+			desc:   "short url redirect",
+			method: "GET",
+			path:   "/multipass/s/randomness",
+			status: http.StatusTemporaryRedirect,
+		},
+		{
 			desc:     "create cookies from token and url query parameter variables",
 			method:   "GET",
 			path:     "/multipass/login",
@@ -478,4 +484,31 @@ func TestCSRFProtect(t *testing.T) {
 	if actual, expect := record.Code, http.StatusForbidden; actual != expect {
 		t.Errorf("expect status %d, got %d", expect, actual)
 	}
+}
+
+func TestAddtoLookup(t *testing.T) {
+	var l lookuptable
+	l.table = make(map[string]string)
+
+	err := l.add("1", "2", time.Millisecond*10)
+	if err != nil {
+		t.Errorf("add error", err)
+	}
+	v, ok := l.lookup("1")
+	if !ok {
+		t.Errorf("expected key in lookup table")
+	}
+	if v != "2" {
+		t.Errorf("expected %s, got %s", "2", v)
+	}
+	//  wait for a key to auto expire
+	time.Sleep(time.Millisecond * 15)
+	v, ok = l.lookup("1")
+	if ok {
+		t.Errorf("expected key not lookup table")
+	}
+	if v != "" {
+		t.Errorf("expected %s, got %s", "", v)
+	}
+
 }

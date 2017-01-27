@@ -96,6 +96,80 @@ func TestParse(t *testing.T) {
 			mail_tmpl a b
 		  }`, true, []Rule{},
 		},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			short enable
+			shortlength 256
+			shortexpire 2h
+		}`, false, []Rule{
+			{
+				Handles:      []string{"leeloo@dallas"},
+				MailFrom:     "no-reply@dallas",
+				Short:        true,
+				ShortLength:  256,
+				ShortExpires: time.Hour * 2,
+			},
+		}},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			short disable
+			shortlength 256
+			shortexpire 2h
+		}`, false, []Rule{
+			{
+				Handles:      []string{"leeloo@dallas"},
+				MailFrom:     "no-reply@dallas",
+				Short:        false,
+				ShortLength:  256,
+				ShortExpires: time.Hour * 2,
+			},
+		}},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			short nonsense
+		}`, true, []Rule{},
+		},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			shortlength nonsense
+		}`, true, []Rule{},
+		},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			shortexpire nonsense
+		}`, true, []Rule{},
+		},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			shortlength -1
+		}`, true, []Rule{},
+		},
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			short enable disable
+		}`, true, []Rule{},
+		},
+
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			shortlength 32 64
+		}`, true, []Rule{},
+		},
+
+		{`multipass {
+			handles leeloo@dallas
+			mail_from no-reply@dallas
+			shortexpire 2h 1h
+		}`, true, []Rule{},
+		},
 		{`multipass a`, true, []Rule{}},
 	}
 	for i, test := range tests {
@@ -137,6 +211,15 @@ func TestParse(t *testing.T) {
 			}
 			if len(actualRule.Handles) != len(expectedRule.Handles) {
 				t.Errorf("test #%d: expected %d handles, actual %d handles", i, len(expectedRule.Handles), len(actualRule.Handles))
+			}
+			if actualRule.Short != expectedRule.Short {
+				t.Errorf("test #%d: expected %t short, actual %t short", i, expectedRule.Short, actualRule.Short)
+			}
+			if actualRule.ShortLength != expectedRule.ShortLength {
+				t.Errorf("test #%d: expected %d shortlength, actual %d shortlength", i, expectedRule.ShortLength, actualRule.ShortLength)
+			}
+			if actualRule.ShortExpires != expectedRule.ShortExpires {
+				t.Errorf("test #%d: expected %v shortexpire, actual %v shortexpire", i, expectedRule.ShortExpires, actualRule.ShortExpires)
 			}
 		}
 	}
