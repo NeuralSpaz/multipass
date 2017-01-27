@@ -1,6 +1,6 @@
 Multipass
 =========
-
+Fork of https://github.com/namsral/multipass with option for shorter login urls suitable for sms.
 [![GoDoc](https://godoc.org/github.com/NeuralSpaz/multipass?status.svg)](http://godoc.org/github.com/NeuralSpaz/multipass)
 
 ![mutipass preview][preview]
