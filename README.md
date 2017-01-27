@@ -1,8 +1,7 @@
 Multipass
 =========
 
-[![Build Status](https://travis-ci.org/namsral/multipass.svg?branch=master)](https://travis-ci.org/namsral/multipass)
-[![GoDoc](https://godoc.org/github.com/namsral/multipass?status.svg)](http://godoc.org/github.com/namsral/multipass)
+[![GoDoc](https://godoc.org/github.com/NeuralSpaz/multipass?status.svg)](http://godoc.org/github.com/NeuralSpaz/multipass)
 
 ![mutipass preview][preview]
 
@@ -131,6 +130,7 @@ multipass {
 - __short__: Enable or Disable short login urls. default enable.
 - __shortlength__: Length of short url componet of login url. default 80.
 - __shortexpire__: The time duration before short url expires. default 1m.
+
 ### Examples:
 
 In the following example, the service running on `localhost:2016` is proxied and protected to allow only users with handles leeloo@dallas and korben@dallas to access the  `/fhloston` and `/paradise` resources.
